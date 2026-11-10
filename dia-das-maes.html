@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dia das Mães</title>
+<style>
+  /* Cores guardadas em variáveis: fica fácil trocar o visual depois */
+  :root {
+    --fundo: #fff5f7;
+    --texto: #3b1f2b;
+    --destaque: #c2185b;
+    --cartao: #ffffff;
+    --borda: #f3c9d6;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --fundo: #2a1620;
+      --texto: #fbe9ef;
+      --destaque: #ff7aa8;
+      --cartao: #3a1e2b;
+      --borda: #6b3a4f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--fundo);
+    color: var(--texto);
+    line-height: 1.6;
+  }
+  header, section, footer {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    text-align: center;
+  }
+  h1 { font-size: 2.6rem; margin: 0 0 8px; color: var(--destaque); }
+  h2 { font-size: 1.6rem; margin: 0 0 16px; }
+  .cartao {
+    background: var(--cartao);
+    border: 1px solid var(--borda);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  #contagem { font-size: 1.2rem; }
+  #mensagem { font-size: 1.25rem; font-style: italic; min-height: 4em; }
+  input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--fundo);
+    color: var(--texto);
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--destaque);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--destaque); outline-offset: 2px; }
+  #resultado { margin-top: 20px; text-align: left; white-space: pre-line; }
+  #resultado:empty { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Feliz Dia das Mães</h1>
+  <p>Um cantinho para dizer o que às vezes não cabe em palavras.</p>
+  <p id="contagem"></p>
+</header>
+
+<section>
+  <h2>Mensagens para ela</h2>
+  <div class="cartao">
+    <p id="mensagem">Clique no botão para ver uma mensagem.</p>
+    <button id="btnMensagem">Mostrar mensagem</button>
+  </div>
+</section>
+
+<section>
+  <h2>Crie seu cartão</h2>
+  <div class="cartao">
+    <input id="nomeMae" type="text" placeholder="Nome da sua mãe" aria-label="Nome da sua mãe">
+    <input id="seuNome" type="text" placeholder="Seu nome" aria-label="Seu nome">
+    <button id="btnCartao">Gerar cartão</button>
+    <div id="resultado"></div>
+  </div>
+</section>
+
+<footer>
+  <p>Feito com carinho.</p>
+</footer>
+
+<script>
+  // ---------- 1) Mensagens (lista + botão) ----------
+  const mensagens = [
+    "Mãe, seu amor foi o primeiro lar que eu conheci.",
+    "Obrigado por cada abraço que consertou meu dia.",
+    "Tudo o que sou carrega um pedaço de você.",
+    "Você é a prova de que amor de verdade não cansa.",
+    "Se eu pudesse escolher de novo, escolheria você."
+  ];
+
+  let indice = 0; // posição da mensagem atual
+
+  function mostrarMensagem() {
+    document.getElementById("mensagem").textContent = mensagens[indice];
+    indice = indice + 1;
+    // quando passar da última, volta para a primeira
+    if (indice >= mensagens.length) {
+      indice = 0;
+    }
+  }
+
+  document.getElementById("btnMensagem").addEventListener("click", mostrarMensagem);
+
+  // ---------- 2) Gerador de cartão (formulário simples) ----------
+  function gerarCartao() {
+    const nomeMae = document.getElementById("nomeMae").value.trim();
+    const seuNome = document.getElementById("seuNome").value.trim();
+    const resultado = document.getElementById("resultado");
+
+    // validação: os dois campos precisam estar preenchidos
+    if (nomeMae === "" || seuNome === "") {
+      resultado.textContent = "Preencha os dois nomes para gerar o cartão.";
+      return;
+    }
+
+    resultado.textContent =
+      "Querida " + nomeMae + ",\n\n" +
+      "Hoje é o seu dia, mas o seu carinho faz parte de todos os meus dias. " +
+      "Obrigado por tudo.\n\n" +
+      "Com amor,\n" + seuNome;
+  }
+
+  document.getElementById("btnCartao").addEventListener("click", gerarCartao);
+
+  // ---------- 3) Contagem regressiva ----------
+  // No Brasil, o Dia das Mães é o 2º domingo de maio.
+  function segundoDomingoDeMaio(ano) {
+    const primeiroDeMaio = new Date(ano, 4, 1); // mês 4 = maio (começa em 0)
+    const diaDaSemana = primeiroDeMaio.getDay(); // 0 = domingo
+    const primeiroDomingo = 1 + ((7 - diaDaSemana) % 7);
+    return new Date(ano, 4, primeiroDomingo + 7);
+  }
+
+  function atualizarContagem() {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    let data = segundoDomingoDeMaio(hoje.getFullYear());
+    // se a data deste ano já passou, usa a do ano que vem
+    if (data < hoje) {
+      data = segundoDomingoDeMaio(hoje.getFullYear() + 1);
+    }
+
+    const msPorDia = 1000 * 60 * 60 * 24;
+    const dias = Math.round((data - hoje) / msPorDia);
+    const texto = document.getElementById("contagem");
+
+    if (dias === 0) {
+      texto.textContent = "É hoje! Dê um abraço bem apertado.";
+    } else {
+      texto.textContent = "Faltam " + dias + " dias para o próximo Dia das Mães.";
+    }
+  }
+
+  atualizarContagem();
+</script>
+
+</body>
+</html>
